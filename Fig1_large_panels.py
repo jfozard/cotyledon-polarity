@@ -341,13 +341,13 @@ def map_box_multiple(im_fn, seg0_fn, seg_pos, transform_fn, transform_pts_fn, an
 out_path='output/'
 Path(out_path).mkdir(exist_ok=True)
     
-data_path = DATA_PATH+'/Brx/Man/'
+data_path = DATA_PATH+'/Brx/stretched/ds1/'
 
 #ray.init()
 map_box_multiple([data_path+'5-brx t0_proj.tif',
                   data_path+'5-brx t1_proj.tif',
                   data_path+'5-brx t3_proj.tif' ],
-                  'segmented/5-brxl.tif',
+                  data_path+'5-brxl-seg-for-figure.tif',
                    #[250, 316, 852],
 #                 [969, 326, 307],
 #                  [167,326,969],

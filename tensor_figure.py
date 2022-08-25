@@ -192,13 +192,15 @@ def main(args):
     
 from pathlib import Path
 
+from data_path import DATA_PATH
+
+input_path = DATA_PATH +'Brx/stretched/ds1/'
+print(input_path)
+
 out_path = 'output/stretching_analysis/'
 Path(out_path).mkdir(exist_ok=True)
 
-main(['', 'tensor_data/sc_5-brx t0.tif',  'tensor_data/sc_5-brx t1.tif',  'tensor_data/5-brxl-inverse-t1-t0.txt', 'tensor_data/5-brxl-direct-t0-t1.txt', out_path+'5-brx-tensor.svg', out_path+'5-brx-cbar.svg', out_path+'5-brx-overlay.png', out_path+'5-brx-all-overlay.png'])
-main(['', 'tensor_data/sc_1-brxl t0 R.tif',  'tensor_data/sc_1-brxl t1 R.tif',  'tensor_data/1-brxl-inverse-t1-t0.txt', 'tensor_data/1-brxl-direct-t0-t1.txt', out_path+'1-brx-tensor.svg', out_path+'1-brx-cbar.svg', out_path+'1-brx-overlay.png',  out_path+'1-brx-all-overlay.png'])
-main(['', 'tensor_data/sc_2-brxl-t0.tif',  'tensor_data/sc_2-brxl-t1.tif',  'tensor_data/2-brxl-inverse-t1-t0.txt', 'tensor_data/2-brxl-direct-t0-t1.txt', out_path+'2-brx-tensor.svg', out_path+'2-brx-cbar.svg', out_path+'2-brx-overlay.png', out_path+'2-brx-all-overlay.png'])
-main(['', 'tensor_data/sc_1-basl-t0.tif',  'tensor_data/sc_1-basl-t1.tif',  'tensor_data/1-basl-inverse-t1-t0.txt', 'tensor_data/1-basl-direct-t0-t1.txt', out_path+'1-basl-tensor.svg', out_path+'1-basl-cbar.svg', out_path+'1-basl-overlay.png', out_path+'1-basl-all-overlay.png'])
+main(['', input_path+'5-brx t0_proj.tif',  input_path+'5-brx t1_proj.tif', input_path+'5-brxl-inverse-t1-t0.txt', input_path+'5-brxl-direct-t0-t1.txt', out_path+'5-brx-tensor.svg', out_path+'5-brx-cbar.svg', out_path+'5-brx-overlay.png', out_path+'5-brx-all-overlay.png'])
 
 
 

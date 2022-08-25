@@ -67,7 +67,7 @@ mpl.rcParams.update({
 
 })
 
-out_path='output3/'
+out_path='output/'
 
 
 FONT = 'Arial, Helvetica'
@@ -1793,8 +1793,8 @@ def process_data(base, size_ds, use_seg=lambda d: False, auto_reverse= lambda d:
                 f.write(str(d)+'\n')
 
 
-        with open(base+'_counts.pkl', 'rb') as cf:
-            counts = pickle.load(cf)
+#        with open(base+'_counts.pkl', 'rb') as cf:
+#            counts = pickle.load(cf)
         db = np.loadtxt(base+".txt")
 
 
@@ -1892,6 +1892,8 @@ def process_data(base, size_ds, use_seg=lambda d: False, auto_reverse= lambda d:
 
 
 from pathlib import Path
+
+from get_leaf_dataframe import get_paired_dataframe
 
 
 Path(out_path+'plot_out').mkdir(exist_ok=True, parents=True)
