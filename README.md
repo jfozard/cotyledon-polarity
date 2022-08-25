@@ -15,7 +15,7 @@ To install:
 1. Install anaconda/conda from https://www.anaconda.com/products/distribution
 2. Create a conda environment using `conda env create -n cotyledon -f env_simple.yml`
 3. Activate this conda environment using `conda activate cotyledon`
-4. Edit data_path.py to point to downloaded and extracted dataset
+4. Edit data_path.py to point to downloaded and extracted dataset (from https://osf.io/ufzj5 )
 5. Run initial analysis scripts with `bash all_analysis.sh`
 6. Run figure plotting scripts with `bash all_figs.sh`
 
