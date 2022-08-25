@@ -100,8 +100,6 @@ svg_height = 260
 
 from svgutils.compose import Unit
 
-ovWdth = Unit('210mm')
-ovHght = Unit('297mm')
 
 a_bins = np.linspace(0,90,10)
 
@@ -519,6 +517,7 @@ def draw_measured_cells_xlsx(measured_cells, results, header_text = "", rw=6, pa
 
         
         for j in range(ny):
+            panel_data.append(CellBlock(3, 1, [BlankCell(), TextCell('angle alpha'), TextCell('change in alpha')]))
             for k in range(w):
                 if cell_idx >= len(measured_cells):
                     break
@@ -638,7 +637,7 @@ def draw_measured_cells_xlsx(measured_cells, results, header_text = "", rw=6, pa
 
                 cell_idx += 1
 
-        all_panel_data.append(CellBlock(ny, w, panel_data))
+        all_panel_data.append(CellBlock(ny, w+1, panel_data))
         return all_panel_data
 
 

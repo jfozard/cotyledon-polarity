@@ -87,14 +87,19 @@ class CellBlock(object):
         
 def make_xlsx(filename, data_list, headers=None):
     workbook = xlsxwriter.Workbook(filename)
-    worksheet = workbook.add_worksheet()
 
-    worksheet.row_height_tmp = {}
-    worksheet.col_width_tmp = {}
 
     bold = workbook.add_format({'bold': True})
+                          
+    
+        
+    for i, group in enumerate(data_list):
+        worksheet = workbook.add_worksheet()
 
-    worksheet.formats = { 'blue': workbook.add_format({'border':5, 'border_color': '#0000FF'}),
+        worksheet.row_height_tmp = { 0:100}
+        worksheet.col_width_tmp = { 0:100}
+
+        worksheet.formats = { 'blue': workbook.add_format({'border':5, 'border_color': '#0000FF'}),
                           'purple': workbook.add_format({'border':5, 'border_color': '#FF00FF'}),
                           'red_t0':  workbook.add_format({'left':5, 'left_color': '#FF0000',
                                                           'top':5, 'top_color': '#FF0000',
@@ -102,12 +107,10 @@ def make_xlsx(filename, data_list, headers=None):
                           'red_t1':  workbook.add_format({'right':5, 'right_color': '#FF0000',
                                                           'top':5, 'top_color': '#FF0000',
                                                           'bottom':5, 'bottom_color': '#FF0000'}),
-    }
-                          
-    
-    c_row = 0
-        
-    for i, group in enumerate(data_list):
+        }
+
+        c_row = 0
+
         if headers:
             worksheet.write(c_row, 0, headers[i], bold)
             c_row += 2
@@ -117,12 +120,12 @@ def make_xlsx(filename, data_list, headers=None):
                 c_row, c_col = d.write(worksheet, c_row, 0)
             c_row += 1
 
-    for row, v in worksheet.row_height_tmp.items():
-        worksheet.set_row_pixels(row, v+5)
+        for row, v in worksheet.row_height_tmp.items():
+            worksheet.set_row_pixels(row, v+5)
 
-    for col in range(max(worksheet.col_width_tmp)+1):
-        v = worksheet.col_width_tmp.get(col, 20)
-        worksheet.set_column_pixels(col, col, v+5)
+        for col in range(max(worksheet.col_width_tmp)+1):
+            v = worksheet.col_width_tmp.get(col, 20)
+            worksheet.set_column_pixels(col, col, v+5)
 #        print('set_column_pixels', col, v)
 
     workbook.close()
