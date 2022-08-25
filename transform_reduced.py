@@ -4,13 +4,6 @@ import numpy.random as npr
 import scipy.ndimage as nd
 from skimage.segmentation import find_boundaries
 
-try:
-    from PyQt5 import QtWidgets, QtCore, QtGui
-    from PyQt5.QtCore import Qt
-except ImportError:
-    from PyQt4 import QtCore, QtGui
-    from PyQt4 import QtGui as QtWidgets
-    from PyQt4.QtCore import Qt
 
 from PIL import Image, ImageDraw
 

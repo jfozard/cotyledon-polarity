@@ -27,7 +27,6 @@ from base import textext, textext_svg
 
 import random
 
-import ray
 
 from imageio import imwrite
 

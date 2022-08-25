@@ -1,29 +1,8 @@
 
 import numpy as np
-import numpy.random as npr
 import scipy.ndimage as nd
-from skimage.segmentation import find_boundaries
-
-try:
-    from PyQt5 import QtWidgets, QtCore, QtGui
-    from PyQt5.QtCore import Qt
-except ImportError:
-    from PyQt4 import QtCore, QtGui
-    from PyQt4 import QtGui as QtWidgets
-    from PyQt4.QtCore import Qt
-
-from PIL import Image, ImageDraw
 
 import deformation as df
-
-def to_qimg_rgb(m):
-    m = np.ascontiguousarray(m)
-    height, width, channels = m.shape
-    bytesPerLine = width*3
-
-    return QtGui.QImage(QtCore.QByteArray(m.tostring()), width, height, bytesPerLine, QtGui.QImage.Format_RGB888)    
-
-binary_lut =  np.array([[50, 120, 50], [120, 50, 120], [180, 50, 50],[50, 50, 180]])
 
 # Deformed mapping of multiple timepoints onto a single reference timepoint
 
