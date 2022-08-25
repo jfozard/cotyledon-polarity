@@ -1,3 +1,4 @@
+# Bash script to make all figures using output of analysis scripts
 set -e
 python fig1_script.py
 python fig2_new_script.py

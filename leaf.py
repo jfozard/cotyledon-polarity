@@ -42,19 +42,15 @@ def centroids_area(seg):
  nd.sum ) ]
 
 
-"""
-def affine_inverse(m):
-    u = np.zeros_like(m)
-    mat_inv = la.inv(m[:2,:2])
-    u[:2,:2] = mat_inv
-    u[:2,2] = -mat_inv @ m[:2,2]
-"""
-
 def affine_inverse(m):
     return la.inv(m)
 
 
 def get_transform(json_file, sc=1):
+    """
+    Import a .json transform file
+    Used to describe alignment of each image with reference template
+    """
     with open(json_file, 'r') as f:
         data = json.load(f)
 
@@ -265,7 +261,7 @@ class BaseTransform(object):
 
     def __getstate__(self):
         state = self.__dict__.copy()
-        # Don't pickle baz
+        # Don't pickle cached parts of transformation
         del state["transformation_x"]
         del state["transformation_y"]
         del state["transformation_valid"]
@@ -275,7 +271,7 @@ class BaseTransform(object):
 
     def __setstate__(self, state):
         self.__dict__.update(state)
-        # Add baz back since it doesn't exist in the pickle
+        # Add cached parts of transformation back as they are not in the pickle
         self.transformation_x = None
         self.transformation_y = None
         self.transformation_valid = None
@@ -405,6 +401,7 @@ class AffineTransform:
 
     def map_source_coords(self, pts):
         return self.reverse_map.map_image_coords(pts)
+
 
 @dataclass
 class LeafView:
@@ -558,12 +555,15 @@ def get_arrows(seg, filename, use_centroids=True, reverse_arrows=False, scale_ro
 
 def seg_leaf_bdd(bdd_im):
     print('segmenting unet')
-    seg_bdd = test_unet('G-249.pt', bdd_im)
+    seg_bdd = test_unet('pt_files/G-249.pt', bdd_im)
     cells = watershed_no_labels(seg_bdd, h=10)[0,:,:]
     return seg_bdd, cells
 
 def process_leaf_simple(name, image_fn, seg_fn, roi_fn, direction, max_length=100, reverse_arrows=False, auto_reverse=False, flip_y=False, return_seg_bdd=False, return_sc=False, extra_roi_fn=[], seg=None):
 
+    """
+
+    """
     
     t0_im = imread(image_fn)
     
@@ -685,12 +685,14 @@ def process_leaf_simple(name, image_fn, seg_fn, roi_fn, direction, max_length=10
         return r[0]
 
 def plot_leaf(leaf):
+    # Helper plotting function (unused)
     plt.figure()
     im = np.dstack((leaf.get_bdd(valid_only=True), leaf.get_signal(valid_only=True), 255*find_boundaries(leaf.get_cells(valid_only=True))))
     plt.imshow(im)
 
 
 def plot_leaf_arrows(leaf):
+    # Helper plotting function (unused)
     plt.figure()
     im = np.dstack((leaf.get_bdd(valid_only=True), leaf.get_signal(valid_only=True), 255*find_boundaries(leaf.get_cells(valid_only=True))))
     plt.imshow(im)
@@ -701,81 +703,14 @@ def plot_leaf_arrows(leaf):
 
 
 def get_rotation_transform(theta, sc=0.8):
-
+    # Returns transformation / scale matrix for specified angle and scale.
+    # Used to transform leaves into rotated coordinate system, primarily for plotting
+    
     a = (pi/180)*(theta)
     
     R0 = sc*np.array(((cos(a), sin(a)), (-sin(a), cos(a))))
 
     c0 = np.array([[512,512]]).T
-    #m2 = np.array([[0,1,0],[-1,0,1024],[0,0,1]])
     m0 = np.vstack((np.hstack((R0, c0-R0.dot(c0))), (0,0,1)))
-#    m0 = m2.dot(m0)
     return m0
 
-"""
-def process(name, im0_fn, seg0_fn, im1_fn, seg1_fn, arrows0_fn, arrows1_fn, transform_fn, transform_pts_fn, theta0, theta1, flip_t0=False):
-    leaf0 = process_leaf_simple(name+'_t0', im0_fn, seg0_fn, arrows0_fn, theta0, flip_y=flip_t0)
-    leaf1 = process_leaf_simple(name+'_t5', im1_fn, seg1_fn, arrows1_fn, theta1)
-
-    #plot_leaf(leaf0) # Make a version that also shows the arrows
-    #plot_leaf(leaf1)
-
-    transform = BTransform2.from_file(transform_fn,  (1024,1024)) # BunwarpJ transform between frame 0 and frame 1 (check direction)
-    transform_pts = BTransform2.from_file(transform_pts_fn, (1024,1024)) # BunwarpJ transform between frame 1 and frame 0 (check direction)
-
-    d_transform = DeformableTransform(transform, transform_pts)
-
-    leaf1_orig0 = LeafView(leaf=leaf1, transform=d_transform)
-
-    # Now transform to aligned coordinates
-
-    plot_leaf(leaf1_orig0) 
-    plt.show()
-
-
-    plot_leaf_arrows(leaf1_orig0) 
-
-
-
-    # Transform t0 into rotated /scaled version
-
-    IM_S = 2
- 
-    # Rotation by (90-theta0) - mapping points in orig frame0 to those in aligned frame 0
-    m0_0 = get_rotation_transform(90-theta0)
-
-    print('m0_0', m0_0)
-
-    m_0 = la.inv(m0_0)
-    # Inverse+coordinate order swap of rotation by (90-theta0) - used to rotate orig image to frame 0
-    affine_m_0 = m_0
-    
-    print('affine_m_0', affine_m_0) #,
-    print('map centre', affine_m_0 @ np.array([512,512,1]))
-    print('map origin', affine_m_0 @ np.array([0,0,1]))
-    print('map f', affine_m_0 @ np.array([1024,1024,1]))
-
-    affine_m_0_x2 = affine_m_0 @ np.diag([1/IM_S,1/IM_S,1])
-   # affine_m_0_x2 = np.diag([1/IM_S,1/IM_S,1])
-    affine_m_0_x2_d2 = np.diag([IM_S,IM_S,1]) @ affine_m_0 @ np.diag([1/IM_S, 1/IM_S, 1.0])
-
-    transform0_0 = AffineTransform(affine_m_0_x2, (1024*IM_S,1024*IM_S))
-
-    leaf0_0 = LeafView(leaf=leaf0, transform = transform0_0)
-
-    plot_leaf_arrows(leaf0_0)
-
-    transform1_0 = CompositeTransform([transform0_0, d_transform])
-    leaf1_0 = LeafView(leaf=leaf1, transform = transform1_0)
-
-    plot_leaf_arrows(leaf1_0)
-
-    im1 = leaf1_0.get_bdd()
-    im2 = leaf0_0.get_bdd()
-
-    plt.figure()
-    plt.imshow(np.dstack((im1[0]*im1[1], im2[0]*im2[1], im1[0])))
-   # plt.show()
-
-    plt.show()
-"""

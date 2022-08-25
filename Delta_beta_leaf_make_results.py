@@ -1,4 +1,11 @@
-#65;6003;1c
+
+"""
+Preprocess imaging data for leaves imaged at two timepoints,
+measuring the changes in the angle beta between those timepoints
+
+output to output/delta_beta_results -> a .pkl.gz file containing the two timepoints 
+"""
+
 from data_path import DATA_PATH
 
 from delta_beta_tracked_comments import comments_red, comments_blue_purple
@@ -1542,88 +1549,47 @@ def process_data(base, size_ds, use_seg=lambda d: False, auto_reverse= lambda d:
 
 from pathlib import Path
 
-Path('output/plot_out').mkdir(exist_ok=True, parents=True)
+from get_leaf_dataframe import get_paired_dataframe
 
+base_all = 'output/'
 
 if __name__=='__main__':
 
     data_path = DATA_PATH
 
-    results_output_path = 'output/delta_beta_results/'
+    results_output_path = base_all+'delta_beta_results/'
 
     Path(results_output_path).mkdir(exist_ok=True, parents=True)
-    
-    ds = pd.read_csv('New_data.csv')
-    ds.columns=['Identifier', 'Path', 'Filename','Marker', 'SizeCat','Age','CotWidth','StretchTP','StretchSucc','ControlTP','Angle','RoICells','Author','Flipped_t0', 'Flipped_channels', 'Replicate', 'Scale', 'N1','N2']
-    ds = ds.loc[(~ds.Filename.isnull()) & (~ds.Angle.isnull())]
 
-    ds.CotWidth[ds.CotWidth.isnull()] = 600
+    base = base_all+'delta_beta'
+    size_ds = get_paired_dataframe(marker='brxl', category='stretched')
 
     
-    
-    marker = 'brxl'
-
-    #ds = ds.sort_values('CotWidth')
-
-    base = 'output/delta_beta'
-
-    
-    idx = ds.loc[(ds.StretchTP=='t0') & (ds.Marker==marker) & (ds.StretchSucc=='Y')]['CotWidth'].argsort()#[:2] ### TESTING REMOVE ME
- 
-    print('idx', idx)
-
-    size_ds = []
-
-
-    size_ds.append(ds.loc[(ds.StretchTP=='t0') & (ds.Marker==marker)  & (ds.StretchSucc=='Y')].iloc[idx])
-    size_ds.append(ds.loc[(ds.StretchTP=='t5') & (ds.Marker==marker)  & (ds.StretchSucc=='Y')].iloc[idx])
-
     print(size_ds)
-
-    print('Number of stretched leaves', len(size_ds))
+    print('Number of stretched leaves', len(size_ds[0]))
 
 
     process_data(base, size_ds, output_results=results_output_path)
-
 
     print(' \n\n\n ===== \n\n\n DONE STRETCH \n\n\n =====')
+    
 
-    idx = ds.loc[(ds.ControlTP=='t0') & (ds.Marker==marker) ]['CotWidth'].argsort()
-
-    print('idx', idx)
-
-    size_ds = []
-
-    size_ds.append(ds.loc[(ds.ControlTP=='t0') & (ds.Marker==marker)].iloc[idx])
-    size_ds.append(ds.loc[(ds.ControlTP=='t5') & (ds.Marker==marker)].iloc[idx])
+    base = base_all+'delta_beta_control'
+    size_ds = get_paired_dataframe(marker='brxl', category='control')
 
     print(size_ds)
-
     print('Number of control leaves', len(size_ds))
-
-    base = 'output/delta_beta_control'
 
 
     process_data(base, size_ds, output_results=results_output_path)
 
-    base = 'output/delta_beta_basl'
 
+    base = base_all+'delta_beta_basl'
+    size_ds = get_paired_dataframe(marker='35S_basl', category='stretched')
 
-    marker = '35S_basl'
+    print(size_ds)
+    print('Number of stretched BASL leaves', len(size_ds[0]))
 
-    #ds = ds.sort_values('CotWidth')
-
-    idx = ds.loc[(ds.StretchTP=='t0') & (ds.Marker==marker) & (ds.StretchSucc=='Y')]['CotWidth'].argsort()
-
-    print('idx', idx)
-
-    idx = idx.iloc[[0,3,4]]
     
-    size_ds = []
-
-    size_ds.append(ds.loc[(ds.StretchTP=='t0') & (ds.Marker==marker)  & (ds.StretchSucc=='Y')].iloc[idx])
-    size_ds.append(ds.loc[(ds.StretchTP=='t5') & (ds.Marker==marker)  & (ds.StretchSucc=='Y')].iloc[idx])
-
-
-    process_data(base, size_ds, use_seg=lambda d: 'Man' in d.Path, auto_reverse=lambda d: 'Man' in d.Path, output_results=results_output_path)
+    process_data(base, size_ds, use_seg=lambda d: 'ds1' in d.Path, auto_reverse=lambda d: 'ds1' in d.Path, output_results=results_output_path)
 

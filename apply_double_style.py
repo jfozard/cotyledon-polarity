@@ -1,6 +1,6 @@
 
 """
-Code to apply a trained UNet to an image.
+Routines to apply a trained Pytorch UNet to an image.
 Uses overlapping tiles to minimize GPU memory required for inference
 """
 

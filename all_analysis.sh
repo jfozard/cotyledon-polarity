@@ -1,5 +1,6 @@
+# bash script to perform all analysis steps
 set -e
-#python All_leaf.py
+python All_leaf.py
 python Delta_beta_leaf.py
 python New_figs_leaf.py
 python New_figs_basl.py

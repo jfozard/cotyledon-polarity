@@ -1,3 +1,9 @@
+
+
+"""
+textext routines used to generate text to embed in SVG images
+"""
+
 """
 =======
 textext

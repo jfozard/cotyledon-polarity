@@ -1,4 +1,17 @@
-#65;6003;1c
+
+"""
+Make plots for tracked pairs of images, measuring change in angle beta
+
+outputs:
+output/delta_beta${X}.txt - measured changes in angle beta
+output/delta_beta${X}_summary.txt - summary for each leaf and overall summary statistics used in manuscript
+output/delta_beta${X}_analysis/ - intermediate output for each leaf, showing arrows and segmentations used
+output/plot_out/delta_beta${X}_delta_beta.svg - histogram of change in beta for tracked cells
+where X =  "", "_control", "_basl"
+
+"""
+
+
 from data_path import DATA_PATH
 
 from delta_beta_tracked_comments import comments_red, comments_blue_purple
@@ -25,7 +38,7 @@ from rpy2.robjects.packages import importr
 
 from subprocess import run
 
-import ray
+#import ray
 
 import pandas as pd
 
@@ -53,6 +66,8 @@ mpl.rcParams.update({
     'savefig.facecolor': 'none',
 
 })
+
+out_path='output3/'
 
 
 FONT = 'Arial, Helvetica'
@@ -1496,20 +1511,6 @@ def plot_results(name, results, prefix, cell_list=None, plot_all_tracked=False, 
 
     leaf1_1 = results['leaf1_1']
 
-    """
-    fig = plot_frame0_frame1(results, sel_arrows0=leaf0.get_arrows_keys(only_below_max_length=True), sel_arrows1=leaf1.get_arrows_keys(only_below_max_length=True), annotate_t0=[(np.unique(leaf0_0.get_cells()[0]), 'w')] , annotate_t1=[(np.unique(leaf1_1.get_cells()[0]), 'w')])
-    fig.savefig(prefix+'all.png')
-    plt.close(fig)
-
-    fig = plot_orig_seg_frame0_frame1(results, annotate_t0=[(np.unique(leaf0.cells), 'w')] , annotate_t1=[(np.unique(leaf1.cells), 'w')], sel_arrows0=leaf0.get_arrows_keys(), sel_arrows1=leaf1.get_arrows_keys())
-    fig.savefig(prefix+'orig_seg.png')
-    plt.close(fig)
-
-
-    fig = plot_frame0_frame1(results, annotate_t0=[(np.unique(leaf0_0.get_cells()[0]), 'w')] , annotate_t1=[(np.unique(leaf1_1.get_cells()[0]), 'w')], bdd=255, view_ch=1)
-    fig.savefig(prefix+'seg.png')
-    plt.close(fig)
-    """
 
     fig = plot_frame0_frame1(results, sel_arrows0=leaf0.get_arrows_keys(only_below_max_length=True), sel_arrows1=leaf1.get_arrows_keys(only_below_max_length=True), annotate_t0=[(leaf0.get_arrows_keys(), 'w')] , annotate_t1=[(leaf1.get_arrows_keys(), 'w')])
 
@@ -1537,24 +1538,6 @@ def plot_results(name, results, prefix, cell_list=None, plot_all_tracked=False, 
     tracking_summary(results, cl2, of=of)
 
 
-    # Make images showing cells in each category
-    """
-    fig = plot_frame0_frame1(results,
-                             annotate_t0=[([ p for category in cl2.values() for c in category for p in c[0]],'w')],
-                             annotate_t1=[([ p for category in cl2.values() for c in category for p in c[1]],'w')],
-                             show_tracked=True, component_filter=lambda x: True)
-    fig.savefig(prefix+'/tracked.png')
-    plt.close(fig)
-
-    
-    for category in cl2:
-        fig = plot_frame0_frame1(results,
-                                  annotate_t0=[([ p for c in cl2[category] for p in c[0]],'w')],
-                                  annotate_t1=[([ p for c in cl2[category] for p in c[1]],'w')],
-                                  show_tracked=True, component_filter=lambda x: x==category)
-        fig.savefig(prefix+'/'+str(category)+'-tracked.png')
-        plt.close(fig)
-    """
 
     if cell_list:
 
@@ -1655,7 +1638,7 @@ def plot_results(name, results, prefix, cell_list=None, plot_all_tracked=False, 
 
 import gzip
 
-result_path = 'output/delta_beta_results/'
+result_path = out_path+'delta_beta_results/'
 
 def process_data(base, size_ds, use_seg=lambda d: False, auto_reverse= lambda d: False, two_sided=False, highlight_cells=False, stacked_base=None, output_plots_base=None):
 
@@ -1792,10 +1775,8 @@ def process_data(base, size_ds, use_seg=lambda d: False, auto_reverse= lambda d:
                 print(k, d,  sum(d), file=of)
                 counts[k] = sum(d)
 
-
-        with open(base+'_counts.pkl', 'wb') as cf:
-            pickle.dump(counts, cf)
-
+                
+            
 
         c0 = Counter(sum([list(c.values()) for c in class0], []))# in list(class0_1.values()) + list(class0_2.values()) + list(class0_3.values()))
         c1 = Counter(sum([list(c.values()) for c in class1], []))# list(class1_1.values()) + list(class1_2.values()) + list(class1_3.values()))
@@ -1803,8 +1784,6 @@ def process_data(base, size_ds, use_seg=lambda d: False, auto_reverse= lambda d:
         print('counter 0', c0, file=of)
         print('counter 1', c1, file=of)
 
-        with open(base+'_data.pkl', 'wb') as cf:
-            pickle.dump([beta0, beta1, class0, class1], cf)
 
 
         db = np.array(sum(db_no_div, []) + sum(db_div, []))
@@ -1914,108 +1893,73 @@ def process_data(base, size_ds, use_seg=lambda d: False, auto_reverse= lambda d:
 
 from pathlib import Path
 
-Path('output/plot_out').mkdir(exist_ok=True, parents=True)
+
+Path(out_path+'plot_out').mkdir(exist_ok=True, parents=True)
 
 
 if __name__=='__main__':
 
     data_path = DATA_PATH
 
-    ds = pd.read_csv('New_data.csv')
-    ds.columns=['Identifier', 'Path', 'Filename','Marker', 'SizeCat','Age','CotWidth','StretchTP','StretchSucc','ControlTP','Angle','RoICells','Author','Flipped_t0', 'Flipped_channels', 'Replicate', 'Scale', 'N1','N2']
-    ds = ds.loc[(~ds.Filename.isnull()) & (~ds.Angle.isnull())]
-
-    ds.CotWidth[ds.CotWidth.isnull()] = 600
 
     
     plt.style.use("dark_background")
 
-    base = 'output/delta_beta'
+    base = out_path+'delta_beta'
 
     Path(base+'_analysis').mkdir(exist_ok=True, parents=True)
 
-    stacked_base = 'output/tracked_cells/'
+    stacked_base = out_path+'tracked_cells/'
 
     Path(stacked_base).mkdir(exist_ok=True, parents=True)
-
+    
     stacked_base += 'delta_beta'
     
     marker = 'brxl'
 
-    #ds = ds.sort_values('CotWidth')
-
+    size_ds = get_paired_dataframe(marker='brxl', category='stretched')
     
-    idx = ds.loc[(ds.StretchTP=='t0') & (ds.Marker==marker) & (ds.StretchSucc=='Y')]['CotWidth'].argsort()#[:2] ### TESTING REMOVE ME
- 
-    print('idx', idx)
-
-    size_ds = []
-
-
-    size_ds.append(ds.loc[(ds.StretchTP=='t0') & (ds.Marker==marker)  & (ds.StretchSucc=='Y')].iloc[idx])
-    size_ds.append(ds.loc[(ds.StretchTP=='t5') & (ds.Marker==marker)  & (ds.StretchSucc=='Y')].iloc[idx])
-
     print(size_ds)
 
     print('Number of stretched leaves', len(size_ds))
 
 
-    process_data(base, size_ds, highlight_cells=True, stacked_base=stacked_base, output_plots_base='output/plot_out/delta_beta')
+    process_data(base, size_ds, highlight_cells=True, stacked_base=stacked_base, output_plots_base=out_path+'plot_out/delta_beta')
 
 
     print(' \n\n\n ===== \n\n\n DONE STRETCH \n\n\n =====')
 
-    base = 'output/delta_beta_control'
+    base = out_path+'delta_beta_control'
 
     Path(base+'_analysis').mkdir(exist_ok=True, parents=True)
 
 
+    size_ds = get_paired_dataframe(marker='brxl', category='control')
     
-    idx = ds.loc[(ds.ControlTP=='t0') & (ds.Marker==marker) ]['CotWidth'].argsort()
-
-    print('idx', idx)
-
-    size_ds = []
-
-    size_ds.append(ds.loc[(ds.ControlTP=='t0') & (ds.Marker==marker)].iloc[idx])
-    size_ds.append(ds.loc[(ds.ControlTP=='t5') & (ds.Marker==marker)].iloc[idx])
-
     print(size_ds)
 
     print('Number of control leaves', len(size_ds))
 
 
     pf = 'delta_beta_control'
-    stacked_base = 'output/tracked_cells/'+pf
-    process_data(base, size_ds, stacked_base=stacked_base, output_plots_base='output/plot_out/'+pf)
+    stacked_base = out_path+'tracked_cells/'+pf
+    process_data(base, size_ds, stacked_base=stacked_base, output_plots_base=out_path+'plot_out/'+pf)
 
-    base = 'output/delta_beta_basl'
+    base = out_path+'delta_beta_basl'
 
     Path(base+'_analysis').mkdir(exist_ok=True, parents=True)
 
 
     marker = '35S_basl'
 
-    #ds = ds.sort_values('CotWidth')
-
-    idx = ds.loc[(ds.StretchTP=='t0') & (ds.Marker==marker) & (ds.StretchSucc=='Y')]['CotWidth'].argsort()
-
-    print('idx', idx)
-
-    idx = idx.iloc[[0,3,4]]
+    size_ds = get_paired_dataframe(marker='35S_basl', category='stretched')
     
-    size_ds = []
-
-
-    size_ds.append(ds.loc[(ds.StretchTP=='t0') & (ds.Marker==marker)  & (ds.StretchSucc=='Y')].iloc[idx])
-    size_ds.append(ds.loc[(ds.StretchTP=='t5') & (ds.Marker==marker)  & (ds.StretchSucc=='Y')].iloc[idx])
-
     print(size_ds)
 
     print('Number of stretched leaves', len(size_ds))
 
     pf = 'delta_beta_basl'
-    stacked_base = 'output/tracked_cells/'+pf
+    stacked_base = out_path+'tracked_cells/'+pf
 
-    process_data(base, size_ds, use_seg=lambda d: 'Man' in d.Path, auto_reverse=lambda d: 'Man' in d.Path, two_sided=True, stacked_base=stacked_base, output_plots_base='output/plot_out/'+pf)
+    process_data(base, size_ds, use_seg=lambda d: 'ds1' in d.Path, auto_reverse=lambda d: 'ds1' in d.Path, two_sided=True, stacked_base=stacked_base, output_plots_base=out_path+'plot_out/'+pf)
 

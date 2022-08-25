@@ -26,7 +26,10 @@ import matplotlib as mpl
 
 import pandas as pd
 
-plot_output = 'output/plot_out/'
+from get_leaf_dataframe import get_leaf_dataframe_revised
+
+output_path = 'output/'
+plot_output = output_path+'plot_out/'
 
 
 mpl.rcParams.update({ 
@@ -43,32 +46,23 @@ mpl.rcParams.update({
 
 from New_figs_base import process_data, arrow_leaf_plot, get_counts, compare_hists
 
-ds = pd.read_csv('New_data.csv')
-ds.columns=['Identifier', 'Path', 'Filename','Marker', 'SizeCat','Age','CotWidth','StretchTP','StretchSucc','ControlTP','Angle','RoICells','Author','Flipped_t0', 'Flipped_channels', 'Replicate', 'Scale', 'N1','N2']
 
-ds = ds.loc[ (~ds.Filename.isnull()) & (~ds.Angle.isnull()) & (ds.Marker=='brxl') ]
-
-print(ds.loc[ds.CotWidth.isnull()])
-
-ds.CotWidth[ds.CotWidth.isnull()]=600
-
+ds_range = get_leaf_dataframe_revised(marker='brxl', category='stretch-t5')
 
 Path(plot_output).mkdir(exist_ok=True, parents=True)
 
-mask = (ds.StretchTP=='t5') & (~ds.StretchSucc.isnull())
-idx = ds.loc[mask]['CotWidth'].argsort()
-ds_range=ds.loc[mask].iloc[idx]
+
 prefix = plot_output + 'stretch-t5-'
 
 print('>>>', prefix, ds_range)
 
-stretch_t5_data = process_data(prefix, ds_range)
+stretch_t5_data = process_data(prefix, ds_range, leaf_data_path=output_path+'leaf_data/')
 
-mask = ((ds.StretchTP=='no stretch') & (ds.ControlTP!='t5')) | (ds.StretchTP=='t0')
-idx = ds.loc[mask]['CotWidth'].argsort()
-ds_range=ds.loc[mask].iloc[idx]
 
-highlight = np.where((ds_range.StretchTP=='t0') &  (~ds_range.StretchSucc.isnull()))[0]
+
+ds_range = get_leaf_dataframe_revised(marker='brxl', category='aggregate-t0')
+
+highlight = np.where((ds_range.TP=='t0') &  (~ds_range.StretchSucc.isnull()))[0]
 
 prefix = plot_output + 'aggregate-t0-'
 
@@ -78,13 +72,11 @@ print('hl', highlight)
 
 print(len(ds_range[ds_range.CotWidth<550]), len(ds_range[(550<=ds_range.CotWidth)*(ds_range.CotWidth<650)]), len(ds_range[ds_range.CotWidth>=650]))
 
-aggregate_t0_data = process_data(prefix, ds_range, hl= highlight, split_sizes=[550, 650])
+aggregate_t0_data = process_data(prefix, ds_range, hl= highlight, split_sizes=[550, 650], leaf_data_path=output_path+'leaf_data/')
 
 sample_data = {}
 
-mask = ((ds.StretchTP=='no stretch') & (ds.ControlTP!='t5')) | (ds.StretchTP=='t0')
-idx = ds.loc[mask]['CotWidth'].argsort()
-ds_range=ds.loc[mask].iloc[idx]
+ds_range = get_leaf_dataframe_revised(marker='brxl', category='aggregate-t0')
 
 
 import numpy.random as npr
@@ -106,12 +98,11 @@ for i in range(20):
 
     print('prefix', prefix)
     
-    sample_data[i] = process_data(prefix, ds_red, only_hist=True, font_scale=1.3)
+    sample_data[i] = process_data(prefix, ds_red, only_hist=True, font_scale=1.3, leaf_data_path=output_path+'leaf_data/')
 
 r = (80, 100)
 
-compare_output = 'output/compare_output/'
+compare_output = output_path+'compare_output/'
 Path(compare_output).mkdir(exist_ok=True, parents=True)
 
 compare_hists(aggregate_t0_data, stretch_t5_data, 'aggregate_t0', 'stretch_t5', of=open(compare_output+'compare-agg_t0_stretch_t5.txt','w'))
-#compare_hists(sample_data[2], stretch_t5_data, 'aggregate_t0_split_2', 'stretch_t5', of=open(compare_output+'compare-agg_t0_split_2_stretch_t5.txt','w'))

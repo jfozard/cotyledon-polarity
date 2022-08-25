@@ -2,6 +2,7 @@
 
 # Make histograms of angle alpha and draw Rose plots
 
+
 import numpy as np
 import scipy.linalg as la
 import matplotlib.pyplot as plt
@@ -12,7 +13,7 @@ import scipy.ndimage as nd
 
 from tifffile import imread
 import csv
-import sys
+
 
 import pickle
 
@@ -27,67 +28,46 @@ import matplotlib as mpl
 
 import pandas as pd
 
-from New_figs_base import process_data, arrow_leaf_plot, get_counts, compare_hists
+from get_leaf_dataframe import get_leaf_dataframe_revised
+
+output_path = 'output/'
+plot_output = output_path+'plot_out/'
+
 
 mpl.rcParams.update({ 
     'figure.facecolor': 'none', 
     'figure.edgecolor': 'none',       
-    'font.size': 20, 
+    'font.size': 28, 
     'figure.dpi': 72, 
     'figure.subplot.bottom' : .15, 
     'savefig.edgecolor': 'none',
     'savefig.facecolor': 'none',
     'font.family': "sans-serif",
     'font.sans-serif': 'Arial',
-    #    'xtick.labelsize': 28,    
 })
 
+from New_figs_base import process_data, arrow_leaf_plot, get_counts, compare_hists
 
 
 
 
-ds = pd.read_csv('New_data.csv')
-ds.columns=['Identifier', 'Path', 'Filename','Marker', 'SizeCat','Age','CotWidth','StretchTP','StretchSucc','ControlTP','Angle','RoICells','Author','Flipped_t0', 'Flipped_channels', 'Replicate', 'Scale', 'N1','N2']
-
-ds = ds.loc[ (~ds.Filename.isnull()) & (~ds.Angle.isnull())] #& (ds.Marker=='basl') ]
 
 
-print(ds.loc[ds.CotWidth.isnull()])
+ds_range = get_leaf_dataframe_revised(marker='basl_basl', category='aggregate-t0')
 
-ds.CotWidth[ds.CotWidth.isnull()]=600
-
-
-
-print('ds, ', ds)
-
-ds2 = ds.loc[ds.Path=='Native BASL']
-
-idx = ds2['CotWidth'].argsort()
-
-ds_range = ds2.iloc[idx]
-
-prefix = 'output/plot_out/native-basl-'
+prefix = plot_output+'native-basl-'
 
 print('>>>', prefix, ds_range)
 
-process_data(prefix, ds_range, marker='native_basl')
+process_data(prefix, ds_range, marker='native_basl', leaf_data_path=output_path+'leaf_data/')
 
 
+ds_range = get_leaf_dataframe_revised(marker='35S_basl', category='aggregate-t0')
 
-ds2 = ds.loc[(ds.Marker=='35S_basl') & (ds.StretchTP!='t5')]
-
-
-print('ds, ', ds2)
-
-idx = ds2['CotWidth'].argsort()
-
-ds_range = ds2.iloc[idx]
-
-
-prefix = 'output/plot_out/35S-basl-'
+prefix = plot_output+'35S-basl-'
 
 print('>>>', prefix)
 print( ds_range)
 
-process_data(prefix, ds_range, marker='35S_basl')
+process_data(prefix, ds_range, marker='35S_basl', leaf_data_path=output_path+'leaf_data/')
 

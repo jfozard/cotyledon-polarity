@@ -1,3 +1,9 @@
+
+"""
+Routines for loading and analysing bUnwarpJ output
+"""
+
+
 from typing import Tuple
 import numpy as np
 import sys

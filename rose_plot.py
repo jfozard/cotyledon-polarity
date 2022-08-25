@@ -217,7 +217,6 @@ def rose_plot(
                     for k in range(len(patches)):
                         patches[k].set_facecolor(plt.cm.hsv((bin_mid[k]+180)/360))
 
-    #                ax.text(10/180*pi,0.25,str(len(angles)), color='white', size=15)
                     ax.set_xticks([])
                     ax.set_ylim(0,f(max_r))
                     ax.set_yticks(f([max_r//2, max_r]))
@@ -429,7 +428,6 @@ def rose_plot(
     
     fig_rows = fig
 
-    # Per box histograms for rico question
     for i in range(Ny):
         for j in range(Nx):
             print(f'{i}, {j} : ' + ' '.join(str(a) for a in box_arrow_data[i][j]))
@@ -461,9 +459,6 @@ def rose_plot(
 #####    plt.show()
 
     mpl.rcParams.update(old_rc)
-
-#    fig_rose.savefig('test.png')
-#    fig_rose.savefig('test.svg')
 
     
     if return_box_arrow_data:

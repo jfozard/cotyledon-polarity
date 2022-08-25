@@ -1,5 +1,6 @@
 
 # Make histograms of angle alpha and draw Rose plots
+# Routines used for both brxl and basl plots
 
 
 import numpy as np
@@ -71,7 +72,7 @@ TITLE_SIZE=24
 XTICK_SIZE=24
 YTICK_SIZE=24
 
-leaf_output = 'output/leaf_data/'
+leaf_output_path = 'output/leaf_data/'
 
 
 ANGLE_LOW = 80
@@ -135,11 +136,11 @@ def arrow_leaf_plot(leaf_0, plot_orig=True, max_length=100):
 
 
 
-def process_data(prefix, ds_range, hl=[], only_hist=False, marker='brxl', split_sizes=[], font_scale=1.0):
+def process_data(prefix, ds, hl=[], only_hist=False, marker='brxl', split_sizes=[], font_scale=1.0, leaf_data_path=leaf_output_path):
 
 
     of_leaves = open(prefix+'leaf-summary.txt', 'w')
-    ids = ds_range['Identifier']
+    ids = ds['Identifier']
     N_cot = len(ids)
 
     def remove_cot(s):
@@ -185,12 +186,12 @@ def process_data(prefix, ds_range, hl=[], only_hist=False, marker='brxl', split_
     bin_c = 0.5*(bins[1:] + bins[:-1])
 
 
-    print('?', ds_range.Identifier)
+    print('?', ds.Identifier)
 
 
     data = []
-    for i in ds_range.index:
-        d = ds_range.loc[i]
+    for i in ds.index:
+        d = ds.loc[i]
         data.append(d.Identifier)
 
     print('###', data)
@@ -198,11 +199,14 @@ def process_data(prefix, ds_range, hl=[], only_hist=False, marker='brxl', split_
     for n in data:
         print('name >>>', n)
 
-        with open(leaf_output+n,'rb') as f:
-            leaf_data = pickle.load(f)
+#        with open(leaf_output+n,'rb') as f:
+#            leaf_data = pickle.load(f)
 
-        with open(leaf_output+n+'_0','rb') as f:
+        with open(leaf_data_path+n+'_0','rb') as f:
+            print('loaded', leaf_data_path+n+'_0')
             leaf_data_0 = pickle.load(f)
+
+        leaf_data = leaf_data_0.leaf
         
         cat_leaves.append(leaf_data)
         cat_leaves_0.append(leaf_data_0)

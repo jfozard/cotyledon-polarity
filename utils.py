@@ -1,4 +1,9 @@
 
+"""
+Variety of utility routines
+"""
+
+
 from imageio import imwrite
 from PIL import Image, ImageDraw
 
@@ -239,10 +244,10 @@ def calc_bipartite_components(links): # Split the bipartite map into connected c
 
 
 
-
+"""
 def affine(m, p): # apply an affine transformation (2x3 or 3x3 matrix) to a 2d point
     return m[:2,:2].dot(p) + m[:2,2]
-
+"""
 
 def to_ij(m): # xy to ij for matrix (and vice-versa)
     m_ij = np.array(m)
@@ -250,15 +255,7 @@ def to_ij(m): # xy to ij for matrix (and vice-versa)
     m_ij[:,[0,1]] = m_ij[:,[1,0]]
     return m_ij
 
-def get_transform(json_file): # Load affine transformation from file -> presumably in XY format
-    with open(json_file, 'r') as f:
-        data = json.load(f)
-
-    fn, m, pts = data[0]
-    m0 = np.array(m).reshape((3,3)).T
-
-    return m0
-
+"""
 # Apply an affine transformation to an image
 def map_image_affine(im, affine_m, output_shape=None, order=0):
     if output_shape is None:
@@ -271,7 +268,7 @@ def centroids_area(seg):
     # returns centroids, areas
     #          centroids - list of cell centroids (I,J)
     return [ f(np.ones_like(seg), labels=seg, index=np.arange(0, np.max(seg)+1)) for f in ( lambda *x, **y: list(map(swap_ij, nd.center_of_mass(*x, **y))), nd.sum ) ]
-
+"""
 
 def regionprop_dict(im):
     rp = regionprops(im)

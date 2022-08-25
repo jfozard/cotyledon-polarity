@@ -1,6 +1,15 @@
 
 
-# Make histograms of angle alpha and draw Rose plots
+# Process all leaves in dataset.
+# Outputs to output/leaf_data/
+# - pickled LeafView as filename_0 : this contains the leaf image,
+#                                    a transformed image (aligned to a template),
+#                                    the processed arrows from the ROISet file,
+#                                    and the measured midline angle
+# - aligned image as filename-aligned.png : leaf with polarity arrows.
+#                                           Original arrows in red,
+#                                           adjusted arrows in colour if retained after criterion, grey if discared
+# - histogram as filename-hist-rose.png : Histogram of angles |\alpha| for that leaf
 
 from data_path import DATA_PATH
 
@@ -33,7 +42,7 @@ from apply_double_style import test_unet
 
 from pathlib import Path
 
-from utils import to_ij, affine, map_to_range, regionprop_dict, leaf_boundary
+from utils import to_ij, map_to_range, regionprop_dict, leaf_boundary
 
 import matplotlib as mpl
 
@@ -61,16 +70,17 @@ mpl.rcParams.update({
     'font.sans-serif': 'Arial',    
 })
 
+
+
 p_alpha = 0.05
 
 ANGLE_LOW = 80
-
 ANGLE_HIGH = 100
 D_ANGLE = ANGLE_HIGH-ANGLE_LOW
 
 RANGE_LOW = 500
 RANGE_HIGH = 750
-
+"""
 ds = pd.read_csv('New_data.csv')
 ds.columns = ['Identifier', 'Path', 'Filename','Marker', 'SizeCat','Age','CotWidth','TP','StretchSucc','ControlTP','Angle','RoICells','Author','Flipped_t0', 'Flipped_channels', 'Replicate', 'Scale', 'N1','N2']
 
@@ -81,6 +91,12 @@ ds.CotWidth[ds.CotWidth.isnull()] = 600
 idx = ds['CotWidth'].argsort()
 
 ds = ds.iloc[idx]
+
+"""
+from get_leaf_dataframe import get_leaf_dataframe_revised
+
+
+ds = get_leaf_dataframe_revised()
 
 print(ds)
 
@@ -131,7 +147,7 @@ def process_leaf(name, image, transform, roi, direction, cot_width, max_length=1
     leaf.width = cot_width
     leaf_0.width = cot_width
     
-    return leaf, leaf_0
+    return leaf_0
 
 def rescale_arrow(a, l_new = 10):
     l = max(1e-6, np.sqrt(a[2]**2 + a[3]**2))
@@ -195,8 +211,10 @@ def arrow_leaf_plot(leaf, px_scale=1.0):
     
     return fig1
 
-def data_from_leaf(leaf, leaf_0, plot_orig=True, max_length=100):
+def data_from_leaf(leaf_0, plot_orig=True, max_length=100):
 
+    leaf = leaf_0.leaf
+    
     direction = leaf.angle
 
     arrow_idx = leaf_0.get_arrows_dict()
@@ -288,7 +306,7 @@ for i in ds.index:
     angle = d.Angle
     cw = d.CotWidth
 
-    leaf_data, leaf_data_0 = process_leaf(n,
+    leaf_data_0 = process_leaf(n,
                                      base_image_path+image+'_proj.tif',
                                      base_image_path+image+'.json',
                                      base_arrow_path+arrows,
@@ -301,7 +319,7 @@ for i in ds.index:
             
     print('>>>', n, image, arrows, angle)
 
-    figs = data_from_leaf(leaf_data, leaf_data_0)
+    figs = data_from_leaf(leaf_data_0)
 
     figs[0].savefig(leaf_img_output+f'{n}-aligned.png')
     plt.close(figs[0])
@@ -310,13 +328,11 @@ for i in ds.index:
 
     scale = d.Scale
     if not pd.isna(scale):
+        leaf_data = leaf_data_0.leaf
         fig = arrow_leaf_plot(leaf_data, px_scale=scale)
         fig.savefig(leaf_img_output+f'{n}-arrows.png')
 
-    idx += 1
 
-    with open(leaf_output+n,'wb') as f:
-        pickle.dump(leaf_data, f)
     with open(leaf_output+n+'_0','wb') as f:
         pickle.dump(leaf_data_0, f)
             

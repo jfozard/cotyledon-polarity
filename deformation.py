@@ -1,3 +1,12 @@
+
+"""
+Routines for loading and analysing bUnwarpJ output
+
+Contains additional routines to calculate the derivatives of the transformations, and to extract eigenvalues from these derivatives
+
+"""
+
+
 import numpy as np
 import sys
 import scipy.ndimage as nd

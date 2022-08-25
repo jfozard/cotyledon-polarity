@@ -1,4 +1,8 @@
 
+"""
+Short script to compare distributions of alpha; statistical tests at the top of Figure 2
+"""
+
 import numpy as np
 import sys
 from scipy.stats import chi2_contingency, ks_2samp, ttest_ind
