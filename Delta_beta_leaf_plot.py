@@ -517,7 +517,7 @@ def draw_measured_cells_xlsx(measured_cells, results, header_text = "", rw=6, pa
 
         
         for j in range(ny):
-            panel_data.append(CellBlock(3, 1, [BlankCell(), TextCell('angle alpha'), TextCell('change in alpha')]))
+            panel_data.append(CellBlock(3, 1, [BlankCell(), TextCell('angle beta'), TextCell('change in beta')]))
             for k in range(w):
                 if cell_idx >= len(measured_cells):
                     break

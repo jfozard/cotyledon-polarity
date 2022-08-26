@@ -94,7 +94,7 @@ def make_xlsx(filename, data_list, headers=None):
     
         
     for i, group in enumerate(data_list):
-        worksheet = workbook.add_worksheet()
+        worksheet = workbook.add_worksheet(f'Data S{i+1}')
 
         worksheet.row_height_tmp = { 0:100}
         worksheet.col_width_tmp = { 0:100}
