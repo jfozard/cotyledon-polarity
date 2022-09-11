@@ -80,8 +80,8 @@ def generate_figure():
 
     panel_T0.append(T0_inset)
 
-    panel_T0 += [sg.TextElement(*p, size=26, color='white', font=FONT) for p in [(81, 105, '(i)'), (160, 115, '(ii)'),
-                                                                      (95, 208, '(iii)') ]]
+    panel_T0 += [sg.TextElement(*p, size=26, color='white', font=FONT) for p in [(81, 105, '(I)'), (160, 115, '(II)'),
+                                                                      (95, 208, '(III)') ]]
 
 
     panel_T0 = sg.GroupElement(panel_T0)
@@ -117,8 +117,8 @@ def generate_figure():
 
     panel_T2.append(T2_inset)
 
-    panel_T2 += [sg.TextElement(*p, size=26, color='white', font=FONT) for p in [(68, 115, '(i)'), (158, 135, '(ii)'),
-                                                                      (88, 255, '(iii)') ]]
+    panel_T2 += [sg.TextElement(*p, size=26, color='white', font=FONT) for p in [(68, 115, '(I)'), (158, 135, '(II)'),
+                                                                      (88, 255, '(III)') ]]
 
     
     panel_T2 = sg.GroupElement(panel_T2)
@@ -147,19 +147,19 @@ def generate_figure():
               b ]
         return sg.GroupElement(g)
     
-    panel_i =  make_panel( (0, 0, '(i)') , 
+    panel_i =  make_panel( (0, 0, '(I)') , 
                             '0_arrows_t0.svg', (105-58,769-20-780),
                             '0_arrows_t1.svg', (216-58,766-20-780),
                             '0_delta_beta_text.svg', (105-38,869-750), (105-58, 808-0-780) )
     panel_i.moveto(130, 760)
 
-    panel_ii = make_panel( (0, 0, '(ii)'),
+    panel_ii = make_panel( (0, 0, '(II)'),
                              '1_arrows_t0.svg', (100-42, 937+100-1060),
                              '1_arrows_t1.svg', (218-42, 937+100-1060),
                              '1_delta_beta_text.svg', (125-42, 140), (112+32-42, 806+180+100-1060))
     panel_ii.moveto(470, 760)
 
-    panel_iii =  make_panel( (0, 0, '(iii)'),
+    panel_iii =  make_panel( (0, 0, '(III)'),
                              '2_arrows_t0.svg', (100-43, 885-900),
                              '2_arrows_t1.svg', (213-43, 872-900),
                              '2_delta_beta_text.svg', (100-30, 140), (107+0-43, 806+95+30-900)) 
